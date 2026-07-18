@@ -48,18 +48,23 @@ app.use((err, req, res, next) => {
 });
 
 const start = async () => {
+  if (!process.env.MONGO_URI) {
+    console.error("FATAL: MONGO_URI environment variable is not set.");
+    process.exit(1);
+  }
+
   try {
     const connectionDb = await mongoose.connect(process.env.MONGO_URI);
-
     console.log(`MONGO Connected DB Host: ${connectionDb.connection.host}`);
-
-    server.listen(app.get("port"), () => {
-      console.log(`LISTENING ON PORT ${app.get("port")}`);
-    });
   } catch (error) {
-    console.log("Database connection failed");
-    console.log(error);
+    console.error("Database connection failed");
+    console.error(error);
+    process.exit(1);
   }
+
+  server.listen(app.get("port"), () => {
+    console.log(`LISTENING ON PORT ${app.get("port")}`);
+  });
 };
 
 start();
